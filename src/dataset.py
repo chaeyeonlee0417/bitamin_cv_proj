@@ -1,4 +1,5 @@
 from wildlife_datasets.datasets import AnimalCLEF2025
+from config import PROCESSED_DIR
 import pandas as pd
 from torchvision.transforms import functional as TF
 import os
@@ -26,7 +27,7 @@ def load_datasets(root, calibration_size=100):
 
     # ✅ 전처리된 .png 파일 경로로 변경
     metadata["path"] = metadata.apply(
-        lambda row: f"processed/{row['split']}/{row['image_id']}.png", axis=1
+        lambda row: os.path.join(PROCESSED_DIR, row["split"], f"{row['image_id']}.png"), axis=1
     )
 
     # ✅ 수정된 metadata 사용하여 전체 dataset 생성
@@ -42,7 +43,7 @@ def load_datasets(root, calibration_size=100):
         random_state=42
     )
     calib_meta["path"] = calib_meta.apply(
-        lambda row: f"processed/database/{row['image_id']}.png", axis=1
+    lambda row: os.path.join(PROCESSED_DIR, "database", f"{row['image_id']}.png"), axis=1
     )
     dataset_calib = AnimalCLEF2025(root, df=calib_meta, load_label=True, transform=salamander_orientation_transform)
 
@@ -55,8 +56,9 @@ def load_datasets_by_species(root, calibration_size=100):
 
     # ✅ .png 경로 반영
     metadata["path"] = metadata.apply(
-        lambda row: f"processed/{row['split']}/{row['image_id']}.png", axis=1
+    lambda row: os.path.join(PROCESSED_DIR, row["split"], f"{row['image_id']}.png"), axis=1
     )
+
 
     species_groups = {}
     for dataset_name in metadata['dataset'].unique():
