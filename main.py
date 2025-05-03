@@ -75,12 +75,12 @@ def preprocess_image(image, species_name):
 
 # ✨ 전처리 실행 함수
 def run_preprocessing():
-    #if not os.path.exists(PROCESSED_DIR):
-        #os.makedirs(PROCESSED_DIR)
+    if not os.path.exists(PROCESSED_DIR):
+        os.makedirs(PROCESSED_DIR)
 
     metadata = pd.read_csv(METADATA_PATH)
     for idx, row in metadata.iterrows():
-        img_path = os.path.join(ROOT, "images", row["image_path"])
+        img_path = os.path.join(ROOT, row["path"])
         species_name = row["dataset"]
         image_id = row["image_id"]
         split = row["split"]
