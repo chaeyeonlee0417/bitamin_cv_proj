@@ -75,14 +75,15 @@ def preprocess_image(image, species_name):
 
 # ✨ 전처리 실행 함수
 def run_preprocessing():
-    if not os.path.exists(PROCESSED_DIR):
-        os.makedirs(PROCESSED_DIR)
+    #if not os.path.exists(PROCESSED_DIR):
+        #os.makedirs(PROCESSED_DIR)
 
     metadata = pd.read_csv(METADATA_PATH)
     for idx, row in metadata.iterrows():
-        img_path = os.path.join(ROOT, row["path"])
+        img_path = os.path.join(ROOT, "images", row["image_path"])
         species_name = row["dataset"]
         image_id = row["image_id"]
+        split = row["split"]
 
         try:
             img = Image.open(img_path).convert("RGB")
@@ -91,7 +92,10 @@ def run_preprocessing():
             continue
 
         processed_img = preprocess_image(img, species_name)
-        save_path = os.path.join(PROCESSED_DIR, f"{image_id}.png")
+        # ✅ split 폴더 별 저장
+        save_dir = os.path.join(PROCESSED_DIR, split)
+        os.makedirs(save_dir, exist_ok=True)
+        save_path = os.path.join(save_dir, f"{image_id}.png")
         processed_img.save(save_path)
 
         if idx % 500 == 0:
