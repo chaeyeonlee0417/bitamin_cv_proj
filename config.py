@@ -12,6 +12,7 @@ import os
 
 # 채연 로컬 경로
 ROOT = "/kaggle/input/animal-clef-2025"
+PROCESSED_DIR = "/kaggle/working/processed"
 # 한준 로컬 경로
 
  
