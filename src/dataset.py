@@ -22,23 +22,23 @@ def load_datasets(root, calibration_size=100):
     import pandas as pd
     from wildlife_datasets.datasets import AnimalCLEF2025
 
-    # 메타데이터 로드
+    # 1. 메타데이터 불러오기
     metadata_path = os.path.join(root, "metadata.csv")
     metadata = pd.read_csv(metadata_path)
 
-    # processed 이미지 경로 반영
+    # 2. 이미지 경로를 processed 기준으로 수정
     metadata["path"] = metadata.apply(
         lambda row: f"processed/{row['split']}/{row['image_id']}.png", axis=1
     )
 
-    # 전체 데이터셋 생성
+    # 3. 전체 dataset 생성
     dataset = AnimalCLEF2025(root, df=metadata, load_label=True, transform=salamander_orientation_transform)
 
-    # 데이터 분리
+    # 4. split 분리
     dataset_db = dataset.get_subset(metadata["split"] == "database")
     dataset_query = dataset.get_subset(metadata["split"] == "query")
 
-    # Calibration 세트 추출
+    # 5. calibration set 추출
     calib_meta = metadata[metadata["split"] == "database"].sample(
         n=min(calibration_size, len(metadata[metadata["split"] == "database"])),
         random_state=42
@@ -46,9 +46,11 @@ def load_datasets(root, calibration_size=100):
     calib_meta["path"] = calib_meta.apply(
         lambda row: f"processed/database/{row['image_id']}.png", axis=1
     )
+
     dataset_calib = AnimalCLEF2025(root, df=calib_meta, load_label=True, transform=salamander_orientation_transform)
 
     return dataset, dataset_db, dataset_query, dataset_calib
+
 
 
 # Return database and query datasets split by species
