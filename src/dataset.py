@@ -19,25 +19,36 @@ def salamander_orientation_transform(image, metadata):
     return image
 
 def load_datasets(root, calibration_size=100):
-    # Apply rotation transform for SalamanderID2025 samples during dataset loading
-    dataset = AnimalCLEF2025(root, load_label=True, transform=salamander_orientation_transform)
+    import pandas as pd
+    from wildlife_datasets.datasets import AnimalCLEF2025
 
-    dataset.metadata["path"] = dataset.metadata.apply(
+    # 메타데이터 로드
+    metadata_path = os.path.join(root, "metadata.csv")
+    metadata = pd.read_csv(metadata_path)
+
+    # processed 이미지 경로 반영
+    metadata["path"] = metadata.apply(
         lambda row: f"processed/{row['split']}/{row['image_id']}.png", axis=1
     )
-    
-    dataset_database = dataset.get_subset(dataset.metadata['split'] == 'database')
-    dataset_query = dataset.get_subset(dataset.metadata['split'] == 'query')
 
-    calib_meta = dataset_database.metadata[:calibration_size].copy()
+    # 전체 데이터셋 생성
+    dataset = AnimalCLEF2025(root, df=metadata, load_label=True, transform=salamander_orientation_transform)
+
+    # 데이터 분리
+    dataset_db = dataset.get_subset(metadata["split"] == "database")
+    dataset_query = dataset.get_subset(metadata["split"] == "query")
+
+    # Calibration 세트 추출
+    calib_meta = metadata[metadata["split"] == "database"].sample(
+        n=min(calibration_size, len(metadata[metadata["split"] == "database"])),
+        random_state=42
+    )
     calib_meta["path"] = calib_meta.apply(
         lambda row: f"processed/database/{row['image_id']}.png", axis=1
     )
-    dataset_calibration = AnimalCLEF2025(
-        root, df=calib_meta, load_label=True, transform=salamander_orientation_transform
-    )
-    
-    return dataset, dataset_database, dataset_query, dataset_calibration
+    dataset_calib = AnimalCLEF2025(root, df=calib_meta, load_label=True, transform=salamander_orientation_transform)
+
+    return dataset, dataset_db, dataset_query, dataset_calib
 
 
 # Return database and query datasets split by species
