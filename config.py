@@ -11,7 +11,7 @@ import os
 # 수아 로컬 경로
 
 # 채연 로컬 경로
-ROOT = "/kaggle/input/animal-clef-2025/images"
+ROOT = "/kaggle/input/animal-clef-2025"
 # 한준 로컬 경로
 
  
