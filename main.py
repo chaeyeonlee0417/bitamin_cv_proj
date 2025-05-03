@@ -1,4 +1,4 @@
-from config import ROOT, MEGAD_NAME, DEVICE, THRESHOLD
+from config import ROOT, PROCESSED_DIR, MEGAD_NAME, DEVICE, THRESHOLD
 from src.transforms import transform, transforms_aliked
 from src.utils import create_sample_submission
 from src.dataset import load_datasets
@@ -18,7 +18,7 @@ import kornia
 from PIL import Image
 
 # 📁 경로 설정 (ROOT는 config.py에서 import됨)
-PROCESSED_DIR = os.path.join(ROOT, "processed")
+#PROCESSED_DIR = os.path.join(ROOT, "processed")
 METADATA_PATH = os.path.join(ROOT, "metadata.csv")
 
 # ✨ CLAHE 적용 함수
