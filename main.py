@@ -85,6 +85,13 @@ def run_preprocessing():
         image_id = row["image_id"]
         split = row["split"]
 
+                # ✅ split 폴더 별 저장
+        save_dir = os.path.join(PROCESSED_DIR, split)
+        os.makedirs(save_dir, exist_ok=True)
+        save_path = os.path.join(save_dir, f"{image_id}.png")
+        if os.path.exists(save_path):
+            continue
+
         try:
             img = Image.open(img_path).convert("RGB")
         except Exception as e:
@@ -92,10 +99,6 @@ def run_preprocessing():
             continue
 
         processed_img = preprocess_image(img, species_name)
-        # ✅ split 폴더 별 저장
-        save_dir = os.path.join(PROCESSED_DIR, split)
-        os.makedirs(save_dir, exist_ok=True)
-        save_path = os.path.join(save_dir, f"{image_id}.png")
         processed_img.save(save_path)
 
         if idx % 500 == 0:
