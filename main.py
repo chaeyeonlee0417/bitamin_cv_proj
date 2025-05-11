@@ -124,7 +124,13 @@ def main():
     matcher_aliked = build_aliked(transform=transforms_aliked, device=DEVICE)
 
     # 4. Build fusion model and apply calibration
-    fusion = build_wildfusion(matcher_aliked, matcher_mega, dataset_calib, dataset_calib)
+    fusion = build_wildfusion(
+       matcher_aliked, matcher_mega,
+       dataset_calib, dataset_calib,
+       fusion_type=args.fusion,
+       w1=args.w1, w2=args.w2
+    )
+
 
     # 5. Compute predictions per query group (by dataset) but compare against full DB
     predictions_all = []
