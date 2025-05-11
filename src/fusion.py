@@ -9,8 +9,8 @@ def build_wildfusion(
     calibration_query, 
     calibration_db,
     fusion_type="weighted", 
-    w1=0.8, 
-    w2=0.2
+    w1=0.6, 
+    w2=0.4
 ):
     if fusion_type == "weighted":
         fusion = WildFusion(
