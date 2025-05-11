@@ -109,8 +109,8 @@ def run_preprocessing():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--fusion", type=str, default="weighted")
-    parser.add_argument("--w1", type=float, default=0.8)
-    parser.add_argument("--w2", type=float, default=0.2)
+    parser.add_argument("--w1", type=float, default=0.6)
+    parser.add_argument("--w2", type=float, default=0.4)
     args = parser.parse_args()
 
     # 1. Load the full dataset
