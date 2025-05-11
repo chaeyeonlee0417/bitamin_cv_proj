@@ -7,6 +7,7 @@ from src.fusion import build_wildfusion
 
 import timm
 import numpy as np
+import argparse
 
 import os
 import pandas as pd
@@ -106,6 +107,12 @@ def run_preprocessing():
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--fusion", type=str, default="weighted")
+    parser.add_argument("--w1", type=float, default=0.8)
+    parser.add_argument("--w2", type=float, default=0.2)
+    args = parser.parse_args()
+
     # 1. Load the full dataset
     dataset, dataset_db, dataset_query, dataset_calib = load_datasets(ROOT)
 
