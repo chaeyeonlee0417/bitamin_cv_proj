@@ -11,8 +11,8 @@ import os
 # 수아 로컬 경로
 
 # 채연 로컬 경로
-ROOT = "/kaggle/input/animal-clef-2025"
-PROCESSED_DIR = "/kaggle/working/processed"
+ROOT = "/content/drive/MyDrive/Colab Notebooks/BITAmin/[2025-1] 프로젝트/animal-clef-2025"
+PROCESSED_DIR = os.path.join(ROOT, "processed")
 # 한준 로컬 경로
 
  
