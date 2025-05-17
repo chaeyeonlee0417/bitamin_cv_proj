@@ -128,7 +128,6 @@ def main():
     fusion = build_weighted_fusion(
        matcher_aliked, matcher_mega,
        dataset_calib, dataset_calib,
-       fusion_type=args.fusion,
        w1=args.w1, w2=args.w2
     )
 
