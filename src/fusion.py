@@ -17,8 +17,8 @@ def build_weighted_fusion(
             self.weight2 = weight2
 
         def __call__(self, query, db, B=25):
-            sim_mega = self.matcher_mega(query, db, B=B)
-            sim_aliked = self.matcher_aliked(query, db, B=B)
+            sim_mega = self.matcher_mega(query, db)
+            sim_aliked = self.matcher_aliked(query, db)
             return self.weight1 * sim_mega + self.weight2 * sim_aliked
 
     return WeightedWildFusion(matcher_mega, matcher_aliked, w1, w2)
