@@ -1,25 +1,26 @@
-from wildlife_tools.similarity.wildfusion import WildFusion
-
 '''
-WildFusion 객체 생성 + calibration 수행
+MegaDescriptor + ALIKED matcher를 가중치 기반으로 융합하는 Fusion 객체 생성
 '''
-def build_wildfusion(
-    matcher_aliked, 
-    matcher_mega, 
-    calibration_query, 
-    calibration_db,
-    fusion_type="weighted", 
-    w1=0.6, 
+def build_weighted_fusion(
+    matcher_aliked,
+    matcher_mega,
+    calibration_query=None,
+    calibration_db=None,
+    w1=0.6,
     w2=0.4
 ):
-    if fusion_type == "weighted":
-        fusion = WildFusion(
-            calibrated_pipelines=[matcher_aliked, matcher_mega],
-            priority_pipeline=matcher_mega,
-            w1=w1,
-            w2=w2
-        )
-        fusion.fit_calibration(calibration_query, calibration_db)
-        return fusion
-    else:
-        raise NotImplementedError(f"Fusion type '{fusion_type}' is not supported.")
+    class WeightedWildFusion:
+        def __init__(self, matcher_mega, matcher_aliked, weight1=0.5, weight2=0.5):
+            self.matcher_mega = matcher_mega
+            self.matcher_aliked = matcher_aliked
+            self.weight1 = weight1
+            self.weight2 = weight2
+
+        def __call__(self, query, db, B=25):
+            sim_mega = self.matcher_mega(query, db, B=B)
+            sim_aliked = self.matcher_aliked(query, db, B=B)
+            return self.weight1 * sim_mega + self.weight2 * sim_aliked
+
+    return WeightedWildFusion(matcher_mega, matcher_aliked, w1, w2)
+
+        
