@@ -15,8 +15,12 @@ def build_weighted_fusion(
             self.matcher_aliked = matcher_aliked
             self.weight1 = weight1
             self.weight2 = weight2
+            
+            if calibration_query is not None and calibration_db is not None:
+                self.matcher_mega.fit_calibration(calibration_query, calibration_db)
+                self.matcher_aliked.fit_calibration(calibration_query, calibration_db)
 
-        def __call__(self, query, db, B=25):
+        def __call__(self, query, db):
             sim_mega = self.matcher_mega(query, db)
             sim_aliked = self.matcher_aliked(query, db)
             return self.weight1 * sim_mega + self.weight2 * sim_aliked
