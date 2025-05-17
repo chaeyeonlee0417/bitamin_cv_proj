@@ -3,7 +3,7 @@ from src.transforms import transform, transforms_aliked
 from src.utils import create_sample_submission
 from src.dataset import load_datasets
 from src.matcher import build_megadescriptor, build_aliked
-from src.fusion import build_wildfusion
+from src.fusion import build_weighted_fusion
 
 import timm
 import numpy as np
@@ -125,7 +125,7 @@ def main():
     matcher_aliked = build_aliked(transform=transforms_aliked, device=DEVICE)
 
     # 4. Build fusion model and apply calibration
-    fusion = build_wildfusion(
+    fusion = build_weighted_fusion(
        matcher_aliked, matcher_mega,
        dataset_calib, dataset_calib,
        fusion_type=args.fusion,
