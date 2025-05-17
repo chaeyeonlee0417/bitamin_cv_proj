@@ -111,6 +111,7 @@ def main():
     parser.add_argument("--fusion", type=str, default="weighted")
     parser.add_argument("--w1", type=float, default=0.6)
     parser.add_argument("--w2", type=float, default=0.4)
+    parser.add_argument("--threshold", type=float, default=0.35)
     args = parser.parse_args()
 
     # 1. Load the full dataset
@@ -141,7 +142,7 @@ def main():
         query_subset = dataset_query.get_subset(dataset_query.metadata["dataset"] == dataset_name)
 
         # Apply per-dataset strategy: adjust threshold for LynxID2025
-        threshold = THRESHOLD
+        threshold = args.threshold
         if dataset_name == "LynxID2025":
             # 시라소니 전략
             threshold = 0.35
