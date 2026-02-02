@@ -8,13 +8,18 @@ from .scorers import FeatureBasedScorer
 from .calibrators import IsotonicCalibrator
 from config import EVA_NAME, EVA_WEIGHT_NAME
 
-# --- EVA02 preprocess holder (for Windows multiprocessing) ---
-_EVA_PREPROCESS = None
 
-def eva_transform(img):
-    if _EVA_PREPROCESS is None:
-        raise RuntimeError("EVA preprocess not initialized. Call build_eva02() first.")
-    return _EVA_PREPROCESS(img)
+class PicklableTransform:
+    """
+    Windows에서 DataLoader(num_workers>0) 사용 시,
+    '로컬 함수/클로저'는 pickle 불가라서 크래시가 납니다.
+    transform을 top-level 클래스로 감싸서 pickle 가능하게 만듭니다.
+    """
+    def __init__(self, t):
+        self.t = t
+
+    def __call__(self, img):
+        return self.t(img)
 
 
 # ---------------------------------------------------------
@@ -23,17 +28,17 @@ def eva_transform(img):
 def build_megadescriptor(model, transform, device='cuda', batch_size=16):
     # Scorer: 특징 추출(DeepFeatures) + 코사인 유사도
     scorer = FeatureBasedScorer(
-        extractor=DeepFeatures(model=model, device=device, batch_size=batch_size, num_workers=0),
+        extractor=DeepFeatures(model=model, device=device, batch_size=batch_size),
         similarity_metric=CosineSimilarity()
     )
-    
+
     # Calibrator: Isotonic
     calibrator = IsotonicCalibrator()
-    
+
     # 파이프라인 조립
     pipeline = UniversalPipeline(scorer, calibrator)
-    
-    # 전처리는 파이프라인 외부(데이터셋 로드 시) 혹은 
+
+    # 전처리는 파이프라인 외부(데이터셋 로드 시) 혹은
     # extractor 내부에서 처리되므로 여기선 metadata 처리를 위해 기록만 해둘 수도 있음
     # (DeepFeatures는 transform을 입력으로 받지 않고, 데이터셋의 transform을 사용함)
     return pipeline
@@ -52,7 +57,7 @@ def build_aliked(transform=None, device='cuda', batch_size=16):
         extractor=AlikedExtractor(device=device),  # 내부적으로 배치 처리
         similarity_metric=MatchLightGlue(features='aliked', device=device, batch_size=batch_size)
     )
-    
+
     calibrator = IsotonicCalibrator()
     return UniversalPipeline(scorer, calibrator)
 
@@ -61,7 +66,6 @@ def build_aliked(transform=None, device='cuda', batch_size=16):
 # 3. EVA02 빌더 (CLIP based Global)
 # ---------------------------------------------------------
 def build_eva02(device='cuda', batch_size=16):
-    global _EVA_PREPROCESS
     try:
         from open_clip import create_model_and_transforms
     except ImportError:
@@ -74,15 +78,15 @@ def build_eva02(device='cuda', batch_size=16):
     )
     model = model.visual.to(device).eval()
 
-    # ✅ preprocess를 전역에 저장 (pickle 가능한 전역 eva_transform이 이걸 사용)
-    _EVA_PREPROCESS = preprocess
-
     scorer = FeatureBasedScorer(
-        extractor=DeepFeatures(model, device=device, batch_size=batch_size, num_workers=0),
+        extractor=DeepFeatures(model, device=device, batch_size=batch_size),
         similarity_metric=CosineSimilarity()
     )
 
+    # EVA02는 별도의 Transform 객체를 반환 -> Dataset에 적용 필요
     pipeline = UniversalPipeline(scorer, IsotonicCalibrator())
-    pipeline.transform = eva_transform  # ✅ 전역 함수로 교체
+
+    # ✅ 로컬 함수(클로저) 대신, pickle 가능한 top-level 클래스로 감싼 transform 사용
+    pipeline.transform = PicklableTransform(preprocess)
 
     return pipeline
